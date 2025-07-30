@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thông Tin Tài Khoản</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(rgba(13, 71, 161, 0.65), rgba(13, 71, 161, 0.65)), url('maxresdefault.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+
+    .profile-container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #0056b3;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .avatar-circle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #0d47a1;
+      color: white;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    h2 {
+      color: #0056b3;
+      margin-bottom: 25px;
+      font-size: 28px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 15px;
+    }
+
+    .profile-section {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .profile-section h3 {
+      color: #0d47a1;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 22px;
+      border-left: 5px solid #0056b3;
+      padding-left: 10px;
+    }
+
+    .info-group {
+      display: flex;
+      margin-bottom: 10px;
+      align-items: baseline;
+    }
+
+    .info-label {
+      font-weight: bold;
+      color: #555;
+      width: 150px;
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      flex-grow: 1;
+      color: #333;
+    }
+
+    #loading-spinner {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #0056b3;
+    }
+
+    #error-message {
+      color: #d9534f;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <a id="back-button" class="back-button">
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+    <div class="avatar-circle" id="avatar-circle">?</div>
+    <h2>Thông Tin Tài Khoản</h2>
+
+    <div id="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i> Đang tải thông tin...
+    </div>
+    <div id="error-message"></div>
+
+    <div id="profile-details" style="display: none;">
+      <div class="profile-section">
+        <h3>Tài Khoản Người Dùng</h3>
+        <div class="info-group">
+          <span class="info-label">Tên đăng nhập:</span>
+          <span class="info-value" id="userName"></span>
+        </div>
+        <div class="info-group">
+          <span class="info-label">CCCD:</span>
+          <span class="info-value" id="idCccd"></span>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Vai trò:</span>
+          <span class="info-value" id="role"></span>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Ngày tạo:</span>
+          <span class="info-value" id="createdAt"></span>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Mật khẩu:</span>
+          <span class="info-value">********</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const idCccd = localStorage.getItem('id_cccd');
+      const backBtn = document.getElementById('back-button');
+      const spinner = document.getElementById('loading-spinner');
+      const error = document.getElementById('error-message');
+      const profile = document.getElementById('profile-details');
+      const avatar = document.getElementById('avatar-circle');
+
+      if (!idCccd) {
+        error.innerText = 'Không tìm thấy thông tin người dùng. Đang chuyển hướng...';
+        error.style.display = 'block';
+        setTimeout(() => window.location.href = '/home', 2000);
+        return;
+      }
+
+      spinner.style.display = 'block';
+
+      try {
+        const res = await fetch(`http://localhost:3000/api/users/cccd/${idCccd}`);
+        const result = await res.json();
+
+        if (res.ok && result.data) {
+          const user = result.data;
+
+          document.getElementById('userName').innerText = user.userName || '---';
+          document.getElementById('idCccd').innerText = user.id_cccd || '---';
+          document.getElementById('role').innerText = user.vaiTro || '---';
+          document.getElementById('createdAt').innerText = user.created_at
+            ? new Date(user.created_at).toLocaleString()
+            : '---';
+
+          avatar.innerText = user.userName?.charAt(0).toUpperCase() || '?';
+
+         backBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.history.back(); // Quay lại trang trước đó
+});
+;
+          profile.style.display = 'block';
+        } else {
+          throw new Error('Không tìm thấy người dùng');
+        }
+      } catch (err) {
+        console.error(err);
+        error.innerText = 'Lỗi khi tải thông tin tài khoản. Vui lòng thử lại.';
+        error.style.display = 'block';
+      } finally {
+        spinner.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

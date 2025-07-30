@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Thủ Tục Hành Chính</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #004494;
+        }
+
+        #dynamic-fields {
+            border-left: 3px solid #0056b3;
+            padding-left: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Tạo Phiếu Đăng Ký Thủ Tục Hành Chính</h1>
+
+        <form id="registration-form">
+            <div class="form-group">
+                <label for="cccd">Số CCCD</label>
+                <input type="text" id="cccd" required />
+            </div>
+
+            <div class="form-group">
+                <label for="id_suKienPL">Mã sự kiện pháp lý</label>
+                <select id="id_suKienPL" required>
+                    <option value="">-- Chọn mã sự kiện --</option>
+                    <option value="SK002">Tạm trú</option>
+                    <option value="SK006">Cấp lại giấy tờ</option>
+                    <option value="SK003">Tạm vắng</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="procedure-type">Chọn loại thủ tục</label>
+                <select id="procedure-type" required>
+                    <option value="">-- Vui lòng chọn --</option>
+                    <option value="Tạm trú">Đăng ký tạm trú</option>
+                    <option value="Tạm vắng">Đăng ký tạm vắng</option>
+                    <option value="Cấp lại giấy tờ">Cấp lại giấy tờ tùy thân</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="ngayDK">Ngày Đăng Ký</label>
+                <input type="date" id="ngayDK" required />
+            </div>
+
+            <div id="dynamic-fields"></div>
+
+            <div class="form-group">
+                <label for="notes">Nội dung/Ghi chú bổ sung</label>
+                <textarea id="notes" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="attachments">Tài liệu đính kèm (nếu có)</label>
+                <input type="file" id="attachments" multiple>
+            </div>
+
+            <button type="submit" class="btn">Nộp Hồ Sơ</button>
+        </form>
+    </div>
+
+    <script>
+        const dynamicFields = document.getElementById('dynamic-fields');
+        const procedureType = document.getElementById('procedure-type');
+
+        procedureType.addEventListener('change', () => {
+            dynamicFields.innerHTML = '';
+            const type = procedureType.value;
+
+            if (type === 'Tạm trú') {
+                dynamicFields.innerHTML = `
+                    <div class="form-group">
+                        <label for="tamtru-address">Địa chỉ tạm trú</label>
+                        <input type="text" id="tamtru-address" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="tamtru-duration">Thời gian tạm trú (tháng)</label>
+                        <input type="text" id="tamtru-duration" required />
+                    </div>
+                `;
+            } else if (type === 'Tạm vắng') {
+                dynamicFields.innerHTML = `
+                    <div class="form-group">
+                        <label for="tamvang-lydo">Lý do tạm vắng</label>
+                        <input type="text" id="tamvang-lydo" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="tamvang-thoigian">Thời gian tạm vắng (từ ngày - đến ngày)</label>
+                        <input type="text" id="tamvang-thoigian" required />
+                    </div>
+                `;
+            } 
+        });
+
+        document.getElementById('registration-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const id_cccd = document.getElementById('cccd').value;
+            const id_suKienPL = document.getElementById('id_suKienPL').value;
+            const loai = document.getElementById('procedure-type').value;
+            const ngayDK = document.getElementById('ngayDK').value;
+            const trangThai = 'Chưa Xử Lý';
+
+            let noiDung = document.getElementById('notes').value;
+            if (loai === 'Tạm trú') {
+                const diaChi = document.getElementById('tamtru-address')?.value || '';
+                const thoiGian = document.getElementById('tamtru-duration')?.value || '';
+                noiDung = `Đăng ký tạm trú tại ${diaChi}. Thời hạn ${thoiGian} tháng. ${noiDung}`;
+            } else if (loai === 'Tạm vắng') {
+                const lyDo = document.getElementById('tamvang-lydo')?.value || '';
+                const tg = document.getElementById('tamvang-thoigian')?.value || '';
+                noiDung = `Đăng ký tạm vắng vì lý do: ${lyDo}. Thời gian: ${tg}. ${noiDung}`;
+            }
+
+            const data = { id_cccd, id_suKienPL, loai, ngayDK, trangThai, noiDung };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/phieu_dangky', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Nộp hồ sơ thành công!');
+                    this.reset();
+                    procedureType.value = '';
+                    dynamicFields.innerHTML = '';
+                } else {
+                    alert(result.message || 'Nộp hồ sơ thất bại!');
+                }
+            } catch (error) {
+                console.error('Lỗi khi nộp hồ sơ:', error);
+                alert('Không thể kết nối đến máy chủ!');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

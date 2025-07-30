@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Ký Khai Sinh</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #0056b3;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: #004494;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Phiếu Đăng Ký Khai Sinh</h1>
+  <form id="birth-form">
+    <!-- Thông tin cha -->
+    <div class="form-group">
+      <label for="tenCha">Họ và tên Cha</label>
+      <input type="text" id="tenCha" required>
+    </div>
+    <div class="form-group">
+      <label for="cccdCha">Số CCCD Cha</label>
+      <input type="text" id="cccdCha" required>
+    </div>
+
+    <!-- Thông tin mẹ -->
+    <div class="form-group">
+      <label for="tenMe">Họ và tên Mẹ</label>
+      <input type="text" id="tenMe" required>
+    </div>
+    <div class="form-group">
+      <label for="cccdMe">Số CCCD Mẹ</label>
+      <input type="text" id="cccdMe" required>
+    </div>
+
+    <!-- Địa chỉ -->
+    <div class="form-group">
+      <label for="diaChi">Địa chỉ hiện tại</label>
+      <input type="text" id="diaChi" required>
+    </div>
+
+    <!-- Thông tin trẻ -->
+    <div class="form-group">
+      <label for="tenTre">Họ tên trẻ</label>
+      <input type="text" id="tenTre" required>
+    </div>
+    <div class="form-group">
+      <label for="ngaySinhTre">Ngày sinh trẻ</label>
+      <input type="date" id="ngaySinhTre" required>
+    </div>
+    <div class="form-group">
+      <label for="gioiTinh">Giới tính</label>
+      <select id="gioiTinh" required>
+        <option value="">-- Chọn giới tính --</option>
+        <option value="Nam">Nam</option>
+        <option value="Nữ">Nữ</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="danToc">Dân tộc</label>
+      <input type="text" id="danToc" required>
+    </div>
+    <div class="form-group">
+      <label for="quocTich">Quốc tịch</label>
+      <input type="text" id="quocTich" required>
+    </div>
+    <div class="form-group">
+      <label for="noiSinh">Nơi sinh</label>
+      <input type="text" id="noiSinh" required>
+    </div>
+    <div class="form-group">
+      <label for="queQuan">Quê quán</label>
+      <input type="text" id="queQuan" required>
+    </div>
+
+    <button type="submit" class="btn">Nộp Phiếu</button>
+  </form>
+</div>
+<script>
+document.getElementById('birth-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  // Lấy giá trị từ các trường nhập liệu
+  const tenCha = document.getElementById('tenCha').value;
+  const cccdCha = document.getElementById('cccdCha').value;
+  const tenMe = document.getElementById('tenMe').value;
+  const cccdMe = document.getElementById('cccdMe').value;
+  const diaChi = document.getElementById('diaChi').value;
+  const tenTre = document.getElementById('tenTre').value;
+  const ngaySinhTre = document.getElementById('ngaySinhTre').value;
+  const gioiTinh = document.getElementById('gioiTinh').value;
+  const danToc = document.getElementById('danToc').value;
+  const quocTich = document.getElementById('quocTich').value;
+  const noiSinh = document.getElementById('noiSinh').value;
+  const queQuan = document.getElementById('queQuan').value;
+
+  // Gộp nội dung chi tiết để lưu vào trường `noiDung`
+  const noiDung = `
+🔸 Cha: ${tenCha} (CCCD: ${cccdCha})
+🔸 Mẹ: ${tenMe} (CCCD: ${cccdMe})
+🔸 Địa chỉ hộ gia đình: ${diaChi}
+🔸 Trẻ: ${tenTre}, sinh ngày ${ngaySinhTre}
+🔸 Giới tính: ${gioiTinh}, Dân tộc: ${danToc}, Quốc tịch: ${quocTich}
+🔸 Nơi sinh: ${noiSinh}, Quê quán: ${queQuan}
+`.trim();
+
+  // Dữ liệu gửi về server
+  const id_cccd = localStorage.getItem('id_cccd'); // ✅ Lấy từ người đang đăng nhập
+  const data = {
+    id_cccd, 
+    id_suKienPL: 'SK004', // ID sự kiện khai sinh
+    loai: 'Khai sinh',
+    ngayDK: new Date().toISOString().slice(0, 10),
+    trangThai: 'Chưa Xử Lý',
+    noiDung
+  };
+
+  // Gửi dữ liệu lên backend
+  try {
+    const response = await fetch('http://localhost:3000/api/phieu_dangky', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert('Đăng ký khai sinh thành công!');
+      this.reset(); // Xoá form
+    } else {
+      alert(result.message || 'Có lỗi xảy ra!');
+    }
+  } catch (error) {
+    console.error('Lỗi gửi phiếu:', error);
+    alert('Không thể kết nối đến máy chủ!');
+  }
+});
+</script>
+
+</body>
+</html>

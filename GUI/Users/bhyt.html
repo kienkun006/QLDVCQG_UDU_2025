@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Bảo Hiểm Y Tế</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0056b3;
+        }
+
+        .profile {
+            margin-bottom: 30px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .info-value {
+            color: #555;
+        }
+
+        .info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .bhyt {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+        }
+
+        .bhyt h3 {
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+
+        .bhyt p {
+            margin: 6px 0;
+        }
+
+        .form-group {
+            margin: 16px 0;
+        }
+
+        input[type="date"] {
+            padding: 8px;
+            font-size: 16px;
+            width: 200px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #004494;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h2>Thông Tin Bảo Hiểm Y Tế</h2>
+
+    <div class="profile">
+        <div class="info">
+            <p><span class="info-label">Số CCCD:</span> <span id="id_cccd" class="info-value"></span></p>
+            <p><span class="info-label">Họ tên:</span> <span id="hoVaTen" class="info-value"></span></p>
+        </div>
+    </div>
+
+    <div class="bhyt">
+        <h3>Thông tin BHYT</h3>
+        <p><strong>Mã BHYT:</strong> <span id="id_bhyt"></span></p>
+        <p><strong>Ngày bắt đầu:</strong> <span id="start_date"></span></p>
+        <p><strong>Ngày kết thúc:</strong> <span id="end_date"></span></p>
+        <p><strong>Địa chỉ đăng ký:</strong> <span id="diaChi_dk"></span></p>
+        <div class="form-group">
+            <label for="new_end">Gia hạn đến ngày:</label>
+            <input type="date" id="new_end">
+            <button onclick="giaHanBHYT()">Gia hạn BHYT</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const id_cccd = localStorage.getItem('id_cccd');
+    if (!id_cccd) {
+        alert("Bạn chưa đăng nhập!");
+        window.location.href = "/";
+    }
+
+    function formatDate(dateStr) {
+        const d = new Date(dateStr);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+
+    let current_id_bhyt = '';
+
+    fetch(`http://localhost:3000/api/congdan/${id_cccd}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data?.data) {
+                const cd = data.data;
+                document.getElementById("id_cccd").textContent = cd.id_cccd;
+                document.getElementById("hoVaTen").textContent = cd.hoVaTen;
+            }
+        });
+
+    fetch(`http://localhost:3000/api/bhyt/${id_cccd}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.data) {
+                const bhyt = data.data;
+                current_id_bhyt = bhyt.id_bhyt;
+                document.getElementById('id_bhyt').textContent = bhyt.id_bhyt;
+                document.getElementById('start_date').textContent = formatDate(bhyt.start_date);
+                document.getElementById('end_date').textContent = formatDate(bhyt.end_date);
+                document.getElementById('diaChi_dk').textContent = bhyt.diaChi_dk;
+            } else {
+                alert("Không tìm thấy thông tin BHYT.");
+            }
+        })
+        .catch(err => {
+            console.error('Lỗi:', err);
+            alert("Không thể kết nối đến máy chủ.");
+        });
+
+    function giaHanBHYT() {
+        const newDate = document.getElementById('new_end').value;
+        if (!newDate) return alert("Vui lòng chọn ngày gia hạn mới");
+
+        fetch(`http://localhost:3000/api/bhyt/giahan/${current_id_bhyt}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ end_date: newDate })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.message) {
+                alert("Gia hạn thành công!");
+                location.reload();
+            } else {
+                alert("Gia hạn thất bại.");
+            }
+        })
+        .catch(err => {
+            console.error('Lỗi:', err);
+            alert("Không thể kết nối đến máy chủ.");
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Hộ Khẩu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image:
+                linear-gradient(rgba(13, 71, 161, 0.65), rgba(13, 71, 161, 0.65)),
+                url('maxresdefault.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 70px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #0d47a1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #0056b3;
+            color: white;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: rgb(255, 255, 255);
+        }
+
+        .btn-add {
+            background: #28a745;
+        }
+
+        .btn-edit {
+            background: #f0ad4e;
+        }
+
+        .btn-delete {
+            background: #d9534f;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #0d47a1;
+        }
+
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Quản lý Hộ Khẩu</h1>
+        <button class="btn btn-add" onclick="openHoKhauModal()">Thêm mới</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã Hộ Khẩu</th>
+                    <th>CCCD Chủ Hộ</th>
+                    <th>Số Nhân Khẩu</th>
+                    <th>Địa Chỉ</th>
+                    <th>Ngày Cấp</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody id="hokhau-table-body"></tbody>
+        </table>
+    </div>
+
+    <div id="hokhau-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="hokhau-modal-title">Thêm Hộ Khẩu Mới</h3>
+                <span class="close-btn" onclick="closeHoKhauModal()">&times;</span>
+            </div>
+            <form id="hokhau-form">
+                <input type="hidden" id="id_hoKhau_hidden" />
+                <div class="form-group">
+                    <label for="id_hoKhau">Mã Hộ Khẩu (9 số)</label>
+                    <input type="text" id="id_hoKhau" pattern="^\d{9}$" title="Mã hộ khẩu phải có 9 chữ số" required />
+                </div>
+                <div class="form-group">
+                    <label for="chuHo_cccd">CCCD Chủ Hộ</label>
+                    <input type="text" id="chuHo_cccd" required />
+                </div>
+                <div class="form-group">
+                    <label for="soNhanKhau">Số Nhân Khẩu</label>
+                    <input type="number" id="soNhanKhau" min="1" value="1" required />
+                </div>
+                <div class="form-group">
+                    <label for="diaChi">Địa Chỉ</label>
+                    <input type="text" id="diaChi" required />
+                </div>
+                <div class="form-group">
+                    <label for="ngayCap">Ngày Cấp (YYYY-MM-DD)</label>
+                    <input type="date" id="ngayCap" required />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeHoKhauModal()">Hủy</button>
+                    <button type="submit" class="btn btn-add">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const apiBaseHoKhau = 'http://localhost:3000/api/hokhau';
+        const hokhauModal = document.getElementById('hokhau-modal');
+        const hokhauForm = document.getElementById('hokhau-form');
+        const hokhauModalTitle = document.getElementById('hokhau-modal-title');
+
+        async function loadHoKhau() {
+            const response = await fetch(apiBaseHoKhau);
+            const result = await response.json();
+            const tbody = document.getElementById('hokhau-table-body');
+            tbody.innerHTML = '';
+
+            result.data.forEach(hk => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${hk.id_hoKhau}</td>
+                    <td>${hk.chuHo_cccd}</td>
+                    <td>${hk.soNhanKhau}</td>
+                    <td>${hk.diaChi}</td>
+                    <td>${hk.ngayCap}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editHoKhau('${hk.id_hoKhau}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-delete" onclick="deleteHoKhau('${hk.id_hoKhau}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function openHoKhauModal() {
+            hokhauModalTitle.innerText = 'Thêm Hộ Khẩu Mới';
+            hokhauForm.reset();
+            document.getElementById('id_hoKhau_hidden').value = '';
+            document.getElementById('id_hoKhau').disabled = false;
+            hokhauModal.classList.add('active');
+        }
+
+        function closeHoKhauModal() {
+            hokhauModal.classList.remove('active');
+        }
+
+        hokhauForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id_hidden = document.getElementById('id_hoKhau_hidden').value;
+            const payload = {
+                id_hoKhau: document.getElementById('id_hoKhau').value,
+                chuHo_cccd: document.getElementById('chuHo_cccd').value,
+                soNhanKhau: Number(document.getElementById('soNhanKhau').value),
+                diaChi: document.getElementById('diaChi').value,
+                ngayCap: document.getElementById('ngayCap').value
+            };
+
+            let response;
+            if (id_hidden) {
+                // Only diaChi can be edited for Ho Khau
+                response = await fetch(`${apiBaseHoKhau}/${id_hidden}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ diaChi: payload.diaChi }) // Only send diaChi for update
+                });
+            } else {
+                response = await fetch(apiBaseHoKhau, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            const result = await response.json();
+            alert(result.message);
+            if (response.ok) {
+                closeHoKhauModal();
+                loadHoKhau();
+            }
+        });
+
+        async function editHoKhau(id) {
+            const response = await fetch(`${apiBaseHoKhau}/${id}`);
+            const result = await response.json();
+            const hoKhau = result.data;
+
+            if (!hoKhau) {
+                alert('Không tìm thấy hộ khẩu');
+                return;
+            }
+
+            hokhauModalTitle.innerText = 'Chỉnh Sửa Hộ Khẩu';
+            document.getElementById('id_hoKhau_hidden').value = hoKhau.id_hoKhau;
+            document.getElementById('id_hoKhau').value = hoKhau.id_hoKhau;
+            document.getElementById('id_hoKhau').disabled = true; // Mã hộ khẩu không được sửa
+            document.getElementById('chuHo_cccd').value = hoKhau.chuHo_cccd;
+            document.getElementById('chuHo_cccd').disabled = true; // CCCD Chủ Hộ không được sửa
+            document.getElementById('soNhanKhau').value = hoKhau.soNhanKhau;
+            document.getElementById('soNhanKhau').disabled = true; // Số nhân khẩu không được sửa
+            document.getElementById('diaChi').value = hoKhau.diaChi;
+            document.getElementById('ngayCap').value = hoKhau.ngayCap;
+            document.getElementById('ngayCap').disabled = true; // Ngày cấp không được sửa
+
+            hokhauModal.classList.add('active');
+        }
+
+        async function deleteHoKhau(id) {
+            if (!confirm(`Bạn chắc chắn muốn xóa Hộ Khẩu ${id}?`)) return;
+
+            const response = await fetch(`${apiBaseHoKhau}/${id}`, { method: 'DELETE' });
+            const result = await response.json();
+            alert(result.message);
+            if (response.ok) {
+                loadHoKhau();
+            }
+        }
+
+        window.onload = loadHoKhau;
+    </script>
+</body>
+
+</html>

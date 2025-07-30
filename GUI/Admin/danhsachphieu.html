@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý Phiếu Đăng Ký</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image:
+        linear-gradient(rgba(13, 71, 161, 0.65), rgba(13, 71, 161, 0.65)),
+        url('maxresdefault.jpg');
+      background-size: cover;
+      background-position: center;
+      padding: 70px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #0d47a1;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #0056b3;
+      color: white;
+    }
+
+    .btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+      font-size: 14px;
+    }
+
+    .btn-approve {
+      background-color: #28a745;
+    }
+
+    .btn-reject {
+      background-color: #d9534f;
+    }
+
+    .note-cell {
+      max-width: 200px;
+      word-wrap: break-word;
+      font-style: italic;
+      color: #555;
+    }
+
+    .status {
+      font-weight: bold;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .filter-bar {
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quản lý Phiếu Đăng Ký</h1>
+
+    <div class="filter-bar">
+      <select id="filterStatus" onchange="loadPhieuDangKy()">
+        <option value="all">-- Tất cả --</option>
+        <option value="Đã Xử Lý">Đã Xử Lý</option>
+        <option value="Chưa Xử Lý">Chưa Xử Lý</option>
+      </select>
+      <input type="text" id="searchCccd" placeholder="Tìm theo CCCD..." oninput="loadPhieuDangKy()" />
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID Phiếu</th>
+          <th>CCCD</th>
+          <th>Loại Đăng Ký</th>
+          <th>Nội Dung</th>
+          <th>Ngày Gửi</th>
+          <th>Trạng Thái</th>
+          <th>Ghi Chú</th>
+          <th>Hành Động</th>
+        </tr>
+      </thead>
+      <tbody id="phieu-table-body"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const apiBase = 'http://localhost:3000/api/phieu_dangky';
+
+    async function loadPhieuDangKy() {
+      const status = document.getElementById('filterStatus').value;
+      const cccd = document.getElementById('searchCccd').value.trim();
+
+      const url = new URL(apiBase);
+      if (status && status !== 'all') url.searchParams.append('status', status);
+      if (cccd) url.searchParams.append('id_cccd', cccd);
+
+      try {
+        const response = await fetch(url);
+        const result = await response.json();
+        const tbody = document.getElementById('phieu-table-body');
+        tbody.innerHTML = '';
+
+        result.forEach(phieu => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${phieu.id_phieu}</td>
+            <td>${phieu.id_cccd}</td>
+            <td>${phieu.loai}</td>
+            <td>${phieu.noiDung || ''}</td>
+            <td>${phieu.ngayDK}</td>
+            <td class="status">${phieu.trangThai}</td>
+            <td class="note-cell">${phieu.admin_notes || ''}</td>
+            <td class="actions-cell">
+              ${phieu.trangThai === 'Chưa Xử Lý' ? `
+                <button class="btn btn-approve" onclick="handleAction(${phieu.id_phieu}, 'Đã Xử Lý')"><i class="fas fa-check"></i></button>
+              ` : '<span>Đã xử lý</span>'}
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Lỗi khi tải danh sách phiếu:', error);
+        alert('Không thể kết nối đến server.');
+      }
+    }
+
+    async function handleAction(id_phieu, newStatus) {
+      const note = prompt(`Nhập ghi chú khi ${newStatus === 'Đã Xử Lý' ? 'duyệt' : 'từ chối'} phiếu ${id_phieu}:`);
+      if (note === null) return;
+
+      const admin_user = localStorage.getItem('admin_user') || 'admin1';
+      const thoiGianDuyet = new Date().toISOString();
+
+      try {
+        const res = await fetch(`${apiBase}/${id_phieu}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ trangThai: newStatus, admin_notes: note, admin_user, thoiGianDuyet })
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert(result.message);
+          loadPhieuDangKy();
+        } else {
+          alert('Lỗi: ' + result.message);
+        }
+      } catch (err) {
+        console.error('Lỗi khi gửi yêu cầu:', err);
+        alert('Không thể kết nối server.');
+      }
+    }
+
+    window.onload = loadPhieuDangKy;
+  </script>
+</body>
+</html>

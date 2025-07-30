@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm Mới Công Dân</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(rgba(13, 71, 161, 0.7), rgba(13, 71, 161, 0.7)), url('maxresdefault.jpg');
+      background-size: cover;
+      background-position: center;
+      padding: 40px;
+    }
+
+    .form-container {
+      max-width: 600px;
+      margin: auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      color: #0056b3;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: #0056b3;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <a href="#" onclick="history.back()" class="back-link">← Quay lại</a>
+    <h2>Thêm Mới Công Dân</h2>
+    <form id="add-citizen-form">
+      <label for="id_cccd">Số CCCD:</label>
+      <input type="text" id="id_cccd" required maxlength="12">
+
+      <label for="hoVaTen">Họ và tên:</label>
+      <input type="text" id="hoVaTen" required>
+
+      <label for="dob">Ngày sinh:</label>
+      <input type="date" id="dob" required>
+
+      <label for="gioiTinh">Giới tính:</label>
+      <select id="gioiTinh" required>
+        <option value="Nam">Nam</option>
+        <option value="Nữ">Nữ</option>
+      </select>
+
+      <label for="danToc">Dân tộc:</label>
+      <input type="text" id="danToc" required>
+
+      <label for="quocTich">Quốc tịch:</label>
+      <input type="text" id="quocTich" value="Việt Nam" required>
+
+      <label for="noiThuongTru">Nơi thường trú:</label>
+      <input type="text" id="noiThuongTru" required>
+
+      <label for="queQuan">Quê quán:</label>
+      <input type="text" id="queQuan" required>
+
+      <label for="tonGiao">Tôn giáo:</label>
+      <input type="text" id="tonGiao">
+
+      <label for="sinhTracHoc">Sinh trắc học:</label>
+      <textarea id="sinhTracHoc" required></textarea>
+
+      <label for="avatar">Link ảnh đại diện:</label>
+      <input type="text" id="avatar">
+
+      <button type="submit">Thêm Công Dân</button>
+    </form>
+  </div>
+
+  <script>
+  const form = document.getElementById('add-citizen-form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+      id_cccd: document.getElementById('id_cccd').value.trim(),
+      hoVaTen: document.getElementById('hoVaTen').value.trim(),
+      dob: document.getElementById('dob').value,
+      gioiTinh: document.getElementById('gioiTinh').value,
+      danToc: document.getElementById('danToc').value.trim(),
+      quocTich: document.getElementById('quocTich').value.trim(),
+      noiThuongTru: document.getElementById('noiThuongTru').value.trim(),
+      queQuan: document.getElementById('queQuan').value.trim(),
+      tonGiao: document.getElementById('tonGiao').value.trim(),
+      sinhTracHoc: document.getElementById('sinhTracHoc').value.trim(),
+      avatar: document.getElementById('avatar').value.trim()
+    };
+
+    try {
+      const res = await fetch('http://localhost:3000/api/congdan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        alert('Thêm công dân thành công!');
+        form.reset(); // Ở lại trang và xóa trắng form
+      } else {
+        alert('Lỗi: ' + result.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Không thể kết nối máy chủ.');
+    }
+  });
+</script>
+
+</body>
+</html>

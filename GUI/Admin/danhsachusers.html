@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Người Dùng</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: linear-gradient(rgba(13, 71, 161, 0.65), rgba(13, 71, 161, 0.65)),
+            url('maxresdefault.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 70px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #0056b3; color: white; }
+        .btn { padding: 6px 12px; margin: 0 4px; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-add { background: #28a745; color: white; }
+        .btn-edit { background: #ffc107; color: white; }
+        .btn-delete { background: #dc3545; color: white; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 400px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        .btn-close { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Quản Lý Người Dùng</h1>
+    <button class="btn btn-add" onclick="openModal()">Thêm Người Dùng</button>
+    <table>
+        <thead>
+            <tr>
+                <th>ID User</th>
+                <th>CCCD</th>
+                <th>Username</th>
+                <th>Vai Trò</th>
+                <th>Ngày Tạo</th>
+                <th>Hành Động</th>
+            </tr>
+        </thead>
+        <tbody id="user-table"></tbody>
+    </table>
+</div>
+
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Thêm Người Dùng</h3>
+        <form id="userForm">
+            <input type="hidden" id="id_user">
+            <div class="form-group">
+                <label>CCCD</label>
+                <input type="text" id="id_cccd" required>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="userName" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="passWord" placeholder="Để trống nếu không đổi">
+            </div>
+            <div class="form-group">
+                <label>Vai Trò</label>
+                <select id="vaiTro" required>
+                    <option value="Công dân">Công dân</option>
+                    <option value="Quản lý">Quản lý</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-add">Lưu</button>
+            <button type="button" class="btn btn-close" onclick="closeModal()">Đóng</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const apiBase = 'http://localhost:3000/api/users';
+    let editingId = '';
+
+    async function loadUsers() {
+        const res = await fetch(apiBase);
+        const result = await res.json();
+        const tbody = document.getElementById('user-table');
+        tbody.innerHTML = '';
+        result.data.forEach(user => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${user.id_user}</td>
+                <td>${user.id_cccd}</td>
+                <td>${user.userName}</td>
+                <td>${user.vaiTro}</td>
+                <td>${new Date(user.created_at).toLocaleDateString('vi-VN')}</td>
+                <td>
+                    <button class="btn btn-edit" onclick="editUser('${user.id_user}')">Sửa</button>
+                    <button class="btn btn-delete" onclick="deleteUser('${user.id_user}')">Xóa</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function openModal() {
+        document.getElementById('userForm').reset();
+        document.getElementById('modalTitle').innerText = 'Thêm Người Dùng';
+        editingId = '';
+        document.getElementById('userModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('userModal').style.display = 'none';
+    }
+
+    async function editUser(id) {
+        const res = await fetch(`${apiBase}/${id}`);
+        const result = await res.json();
+        const user = result.data;
+
+        document.getElementById('id_user').value = user.id_user;
+        document.getElementById('id_cccd').value = user.id_cccd;
+        document.getElementById('userName').value = user.userName;
+        document.getElementById('vaiTro').value = user.vaiTro;
+
+        editingId = id;
+        document.getElementById('modalTitle').innerText = 'Chỉnh Sửa Người Dùng';
+        document.getElementById('userModal').style.display = 'flex';
+    }
+
+    async function deleteUser(id) {
+        if (confirm('Bạn có chắc muốn xóa người dùng này?')) {
+            await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
+            loadUsers();
+        }
+    }
+
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id_user = document.getElementById('id_user').value;
+        const id_cccd = document.getElementById('id_cccd').value;
+        const userName = document.getElementById('userName').value;
+        const passWord = document.getElementById('passWord').value;
+        const vaiTro = document.getElementById('vaiTro').value;
+
+        const data = { id_cccd, userName, passWord, vaiTro };
+
+        if (editingId) {
+            await fetch(`${apiBase}/${editingId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        } else {
+            await fetch(apiBase, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        }
+
+        closeModal();
+        loadUsers();
+    });
+
+    window.onload = loadUsers;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #007bff;
+            --dark-color: #1a1a1a;
+            --text-color: #333;
+            --light-gray-color: #f8f9fa;
+            --white-color: #ffffff;
+            --border-color: #dee2e6;
+            --shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: var(--white-color);
+            color: var(--text-color);
+            line-height: 1.7;
+        }
+        .container { width: 90%; max-width: 1200px; margin: 0 auto; }
+        section { padding: 60px 0; }
+        h2.section-title {
+            text-align: center;
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            font-weight: 700;
+        }
+
+        /* --- 2. HEADER --- */
+        .header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.214)), url('banner-header.webp');
+            background-size: cover;
+            background-position: center;
+            padding: 15px 0;
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .header.scrolled {
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .header .container { display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { width: 50px; height: 50px; }
+        .nav-link {
+            font-weight: 500; cursor: pointer; color: var(--white-color);
+            font-size: 17px; text-decoration: none; padding: 5px 10px;
+            position: relative;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .nav-link::after {
+            content: ''; position: absolute; width: 0; height: 2px;
+            bottom: -5px; left: 50%; transform: translateX(-50%);
+            background-color: var(--white-color); transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+        .sign-in-button {
+            padding: 10px 25px; border: 2px solid var(--white-color);
+            background-color: transparent; color: var(--white-color);
+            font-size: 1rem; cursor: pointer; border-radius: 30px;
+            transition: all 0.3s ease; font-weight: bold;
+        }
+        .sign-in-button:hover { background-color: var(--white-color); color: var(--primary-color); }
+        
+        /* --- 3. HERO SECTION (BANNER) --- */
+        .hero-section {
+            padding-top: 150px; 
+            padding-bottom: 80px;
+            background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.134), rgba(0, 0, 0, 0)),
+        url('maxresdefault.jpg');
+        }
+        .hero-content {
+            text-align: center;
+        }
+        .hero-content h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--white-color);
+            margin-bottom: 20px;
+        }
+        .hero-content p {
+            font-size: 20px;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            color: #fdfdfd;
+        }
+        .cta-button {
+            padding: 15px 35px;
+            background: var(--secondary-color);
+            color: var(--white-color);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        /* --- 4. SERVICES SECTION --- */
+        .services-section { background-color: var(--light-gray-color); }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .service-card {
+            background: var(--white-color); border-radius: 8px; box-shadow: var(--shadow);
+            text-align: center; padding: 30px 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none; color: var(--text-color);
+        }
+        .service-card:hover { transform: translateY(-10px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); }
+        .service-card .icon { font-size: 48px; color: var(--primary-color); margin-bottom: 20px; }
+        .service-card h3 { font-size: 20px; margin-bottom: 10px; 
+        }
+    
+
+        /* --- 5. NEWS SECTION --- */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .news-card {
+            background: var(--white-color); border-radius: 8px; box-shadow: var(--shadow);
+            overflow: hidden; display: flex; flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .news-card:hover { transform: translateY(-5px); }
+        .news-card img { width: 100%; height: 200px; object-fit: cover; }
+        .news-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .news-content h4 { font-size: 18px; margin-bottom: 10px; }
+        .news-content .read-more {
+            margin-top: auto; color: var(--primary-color);
+            text-decoration: none; font-weight: 600;
+        }
+        .news-content .read-more:hover { text-decoration: underline; }
+
+        /* --- 6. FOOTER --- */
+        .footer {
+            background-color: #1c2331;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 40px 0;
+            padding-top: 60px;
+        }
+        .footer .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .footer-col h4 { color: var(--white-color); margin-bottom: 15px; text-transform: uppercase; font-size: 16px; }
+        .footer-col p, .footer-col a { color: rgba(255, 255, 255, 0.7); text-decoration: none; }
+        .footer-col a:hover { color: var(--white-color); }
+        .copyright {
+            text-align: center;
+            border-top: 1px solid #3a424d;
+            margin-top: 30px;
+            padding-top: 20px;
+        }
+
+        /* --- 7. RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .header { background: var(--primary-color); } /* Luôn có màu trên mobile */
+            .hero-content h1 { font-size: 32px; }
+            section { padding: 40px 0; }
+        }
+
+        /* === CSS MỚI CHO MODAL ĐĂNG NHẬP === */
+        .modal {
+            display: none; /* Mặc định ẩn */
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5); /* Lớp phủ mờ */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex; /* Hiện modal lên */
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slide-down 0.4s ease-out;
+        }
+        @keyframes slide-down {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 { margin: 0; color: var(--primary-color); }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-btn:hover, .close-btn:focus { color: black; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
+        .form-group input {
+            width: 100%; padding: 12px; border: 1px solid var(--border-color);
+            border-radius: 6px; font-size: 16px;
+        }
+        .modal-footer { text-align: center; }
+        .login-btn {
+            width: 100%; padding: 12px; background-color: var(--primary-color);
+            color: white; border: none; border-radius: 6px; font-size: 16px;
+            font-weight: bold; cursor: pointer; transition: background-color 0.2s;
+        }
+        .login-btn:hover { background-color: #00418a; }
+        .extra-links { margin-top: 15px; font-size: 14px; text-align: center; }
+        .extra-links a { color: var(--secondary-color); text-decoration: none; }
+        .extra-links a:hover { text-decoration: underline; }
+
+
+        .avatar-menu {
+    position: relative;
+    display: inline-block;
+}
+---
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            background-color: var(--white-color);
+            color: var(--primary-color);
+            border-radius: 50%;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            border: 2px solid var(--primary-color);
+        }
+
+        .avatar-dropdown {
+            position: absolute;
+            right: 0;
+            top: 50px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            z-index: 999;
+            min-width: 180px;
+        }
+
+        .avatar-dropdown.active {
+            display: block;
+        }
+
+        .avatar-dropdown p {
+            margin: 0;
+            padding: 6px 0;
+        }
+
+        .avatar-dropdown a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .avatar-dropdown a:hover {
+            text-decoration: underline;
+        }
+  
+        .avatar-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid var(--primary-color);
+        object-fit: cover;
+        cursor: pointer;
+    }
+
+        
+    </style>
+</head>
+<body>
+
+    <header class="header" id="main-header">
+        <div class="container">
+            <div class="header-left">
+                <img src="https://static.mediacdn.vn/XayDungChinhSachPhapLuat/web/images/logo.png">
+                <nav>
+                    <a href="#" class="nav-link">Trang Chủ</a>
+                    <a href="#services" class="nav-link">Dịch vụ</a>
+                    <a href="#news" class="nav-link">Tin tức</a>
+                    <a href="#footer" class="nav-link">Liên Hệ</a>
+                </nav>
+            </div>
+            <div class="header-right" id="nav-user">
+                <div class="avatar-menu">
+                    <img id="avatar-toggle" src="avatar-macdinh.jpg" alt="Avatar" class="avatar-img">
+                    <div class="avatar-dropdown" id="avatar-dropdown">
+                        <p><strong>Người dùng</strong></p>
+                        <p><a href="thongtin_taikhoan.html">Thông tin cá nhân</a></p>
+                        <p><a href="#" id="logout">Đăng xuất</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Cổng Dịch Vụ Công Trực Tuyến</h1>
+                    <p>Nơi giải quyết các thủ tục hành chính một cách minh bạch, hiệu quả và thuận tiện cho người dân và doanh nghiệp.</p>
+                    <a href="#services" class="cta-button">Khám phá các dịch vụ</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="services-section">
+            <div class="container">
+                <h2 class="section-title">Dịch Vụ Nổi Bật</h2>
+                <div class="services-grid">
+
+                    <a href="tracuu.html" class="service-card">
+                        <i class="fas fa-address-card icon"></i>
+                        <h3>Tra cứu Công Dân</h3>
+                        <p>Tra cứu thông tin cá nhân, Hộ khẩu của công dân.</p>
+                    </a>
+
+                    <a href="phieudk.html" class="service-card">
+                        <i class="fas fa-home icon"></i>
+                        <h3>Đăng ký cư trú</h3>
+                        <p>Khai báo và đăng ký thông tin thường trú, tạm trú.</p>
+                    </a>
+
+                    <a href="khaisinh.html" class="service-card">
+                        <i class="fas fa-baby icon"></i>
+                        <h3>Đăng ký khai sinh</h3>
+                        <p>Thực hiện thủ tục đăng ký khai sinh trực tuyến.</p>
+                    </a>
+
+                    <a href="bhyt.html" class="service-card">
+                        <i class="fas fa-heartbeat icon"></i>
+                        <h3>Bảo hiểm y tế</h3>
+                        <p>Gia hạn, cấp mới thẻ BHYT và tra cứu thông tin.</p>
+                    </a>
+                    
+                </div>
+            </div>
+        </section>
+        
+         <section id="news" class="news-section">
+            <div class="container">
+                <h2 class="section-title">Tin Tức & Sự Kiện</h2>
+                <div class="news-grid">
+                    <div class="news-card">
+                        <img src="tich-hop-BHXH-vao-VNeID-7.png" alt="Tin tức 1">
+                        <div class="news-content">
+                            <h4>Từ 1/7/2024, VNeID là tài khoản duy nhất thực hiện dịch vụ công</h4>
+                            <p>Đây là một thay đổi quan trọng trong việc đồng bộ hóa dữ liệu quốc gia...</p>
+                            <a href="https://thuvienphapluat.vn/chinh-sach-phap-luat-moi/vn/thu-tuc-hanh-chinh-online/55260/huong-dan-cach-tich-hop-bhxh-vao-vneid-tai-nha" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                     <div class="news-card">
+                        <img src="ndt4809-1714717930401863186652.png" alt="Tin tức 2">
+                        <div class="news-content">
+                            <h4>Hướng dẫn thủ tục làm Căn cước công dân mới nhất</h4>
+                            <p>Quy trình và các giấy tờ cần thiết để làm CCCD gắn chip...</p>
+                            <a href="https://baochinhphu.vn/tu-1-7-chi-su-dung-duy-nhat-tai-khoan-vneid-khi-thuc-hien-dich-vu-cong-truc-tuyen-102240503133408329.htm" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                     <div class="news-card">
+                        <img src="do-cccd-sang-the-can-cuoc.png" alt="Tin tức 3">
+                        <div class="news-content">
+                            <h4>Tích hợp thông tin BHXH, giấy phép lái xe trên VNeID</h4>
+                            <p>Người dân có thể sử dụng VNeID thay thế cho nhiều loại giấy tờ...</p>
+                            <a href="https://thuvienphapluat.vn/chinh-sach-phap-luat-moi/vn/ho-tro-phap-luat/tu-van-phap-luat/79023/cach-dang-ky-lam-the-can-cuoc-online-nam-2025" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="header-right" id="nav-user">
+    <div class="avatar-menu">
+        <div class="avatar-circle" id="avatar-toggle">N</div>
+        <div class="avatar-dropdown" id="avatar-dropdown">
+            <p><strong>Nguyễn Văn A</strong></p>
+            <p><a href="thongtin_taikhoan.html">Thông tin cá nhân</a></p>
+            <p><a href="#" id="logout">Đăng xuất</a></p>
+        </div>
+    </div>
+</div>
+
+    </div>
+
+    <footer id="footer" class="footer">
+        <div class="container">
+            <div class="footer-col">
+                <h4>CỔNG DỊCH VỤ CÔNG CẤP QUẬN</h4>
+                <p>Tổng đài hỗ trợ: 1800 8386</p>
+                <p>Email: dichvuconglongbien@gov.vn</p>
+                <p>Địa Chỉ : 1 Vạn Hạnh, Phường Việt Hưng, Quận Long Biên, Thành phố Hà Nội </p>
+            </div>
+            <div class="footer-col">
+                <h4>Liên kết hữu ích</h4>
+                <p><a href="#">Câu hỏi thường gặp</a></p>
+                <p><a href="#">Hướng dẫn sử dụng</a></p>
+                <p><a href="#">Chính sách bảo mật</a></p>
+            </div>
+             <div class="footer-col">
+                <h4>Đơn vị chủ quản</h4>
+                <p>UBND Quận Long Biên</p>
+                <p>Chịu trách nhiệm nội dung: Chủ Tịch Ủy Ban Nhân Dân Quận</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>Bản quyền thuộc về UBND Quận Long Biên</p>
+        </div>
+    </footer>
+
+    <script>
+        const name = localStorage.getItem('userName') || 'Người dùng';
+        const id_cccd = localStorage.getItem('id_cccd');
+
+        if (!id_cccd) {
+            alert("Bạn chưa đăng nhập!");
+            window.location.href = "/home";
+        }
+
+        const avatarUrl = localStorage.getItem('avatar') || 'avatar-macdinh.jpg';
+        const avatarToggle = document.getElementById('avatar-toggle');
+        avatarToggle.innerHTML = `<img src="${avatarUrl}" alt="Avatar" class="avatar-img">`;
+        document.querySelector('#avatar-dropdown p strong').textContent = name;
+
+        document.getElementById('avatar-toggle')?.addEventListener('click', () => {
+            document.getElementById('avatar-dropdown').classList.toggle('active');
+        });
+
+        document.getElementById('logout')?.addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '/home';
+        });
+       
+    </script>
+</body>
+</html> 

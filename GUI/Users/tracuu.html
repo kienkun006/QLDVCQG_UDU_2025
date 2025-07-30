@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Công Dân</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0056b3;
+        }
+
+        .profile {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile img {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #007bff;
+        }
+
+        .info {
+            flex-grow: 1;
+        }
+
+        .info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .info-value {
+            color: #555;
+        }
+
+        .hokhau {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+        }
+
+        .hokhau h3 {
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+
+        .hokhau p {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Thông Tin Công Dân</h2>
+
+        <div class="profile">
+            <img id="avatar" src="avatar-macdinh.jpg" alt="Avatar">
+            <div class="info">
+                <p><span class="info-label">Họ và Tên:</span> <span id="name" class="info-value"></span></p>
+                <p><span class="info-label">Số CCCD:</span> <span id="id_cccd" class="info-value"></span></p>
+                <p><span class="info-label">Ngày sinh:</span> <span id="dob" class="info-value"></span></p>
+                <p><span class="info-label">Giới tính:</span> <span id="gioiTinh" class="info-value"></span></p>
+                <p><span class="info-label">Dân tộc:</span> <span id="danToc" class="info-value"></span></p>
+                <p><span class="info-label">Tôn giáo:</span> <span id="tonGiao" class="info-value"></span></p>
+                <p><span class="info-label">Quê quán:</span> <span id="queQuan" class="info-value"></span></p>
+                <p><span class="info-label">Quốc tịch:</span> <span id="quocTich" class="info-value"></span></p>
+                <p><span class="info-label">Nơi thường trú:</span> <span id="noiThuongTru" class="info-value"></span></p>
+            </div>
+        </div>
+
+        <div class="hokhau">
+            <h3>Thông Tin Hộ Khẩu</h3>
+            <p><strong>Mã hộ khẩu:</strong> <span id="maHoKhau"></span></p>
+            <p><strong>Địa chỉ:</strong> <span id="diaChiHoKhau"></span></p>
+            <p><strong>Chủ hộ:</strong> <span id="chuHo"></span></p>
+            <p><strong>Số nhân khẩu:</strong> <span id="soNhanKhau"></span></p>
+            <p><strong>Ngày cấp:</strong> <span id="ngayCap"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const id_cccd = localStorage.getItem('id_cccd');
+
+        if (!id_cccd) {
+            alert("Bạn chưa đăng nhập!");
+            window.location.href = "/";
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        fetch(`http://localhost:3000/api/congdan/${id_cccd}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data?.data) {
+                    const cd = data.data;
+                    document.getElementById("name").textContent = cd.hoVaTen;
+                    document.getElementById("id_cccd").textContent = cd.id_cccd;
+                    document.getElementById("dob").textContent = formatDate(cd.dob);
+                    document.getElementById("gioiTinh").textContent = cd.gioiTinh;
+                    document.getElementById("danToc").textContent = cd.danToc;
+                    document.getElementById("tonGiao").textContent = cd.tonGiao || "Không";
+                    document.getElementById("queQuan").textContent = cd.queQuan;
+                    document.getElementById("quocTich").textContent = cd.quocTich;
+                    document.getElementById("noiThuongTru").textContent = cd.noiThuongTru;
+
+                    const storedAvatar = localStorage.getItem('avatar');
+                    document.getElementById("avatar").src = storedAvatar || cd.avatar || 'avatar-macdinh.jpg';
+
+                    fetch(`http://localhost:3000/api/hokhau/${cd.id_cccd}`)
+                        .then(res => res.json())
+                        .then(hk => {
+                            if (hk?.data) {
+                                document.getElementById("maHoKhau").textContent = hk.data.id_hoKhau;
+                                document.getElementById("diaChiHoKhau").textContent = hk.data.diaChi;
+                                document.getElementById("chuHo").textContent = hk.data.chuHo_cccd;
+                                document.getElementById("soNhanKhau").textContent = hk.data.soNhanKhau;
+                                document.getElementById("ngayCap").textContent = formatDate(hk.data.ngayCap);
+                            } else {
+                                document.getElementById("maHoKhau").textContent = 'Không có thông tin';
+                            }
+                        })
+                        .catch(err => console.error("Lỗi khi lấy hộ khẩu:", err));
+                } else {
+                    alert("Không tìm thấy thông tin công dân!");
+                }
+            })
+            .catch(err => {
+                console.error("Lỗi khi tải thông tin công dân:", err);
+                alert("Không thể kết nối đến máy chủ!");
+            });
+    </script>
+
+</body>
+</html>

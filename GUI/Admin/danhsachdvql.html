@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đơn Vị Quản Lý</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+     <style>
+     
+        :root {
+            --primary-color: #0056b3;
+            --success-color: #28a745;
+            --warning-color: #f0ad4e;
+            --danger-color: #d9534f;
+            --light-color: #fff;
+            --dark-color: #343a40;
+            --gray-color: #6c757d;
+            --bg-color: #f4f6f9;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background:  linear-gradient(rgba(13, 71, 161, 0.65), rgba(13, 71, 161, 0.65)),
+            url('maxresdefault.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 70px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+       
+        .card {
+            background: var(--light-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        .card-body {
+            padding: 25px;
+        }
+
+      
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+            color: var(--light-color); font-size: 14px; display: inline-flex;
+            align-items: center; gap: 8px; transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn-add { background: var(--success-color); }
+        .btn-edit { background: var(--warning-color); }
+        .btn-delete { background: var(--danger-color); }
+        .btn-cancel { background: var(--gray-color); }
+
+       
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #0056b3; color: white; }
+        tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        .actions-cell { display: flex; gap: 8px; }
+
+   
+        .modal {
+            display: none; position: fixed; z-index: 1000; top: 0; left: 0;
+            width:100%; height:100%; background: rgba(0,0,0,0.4);
+            justify-content: center; align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--light-color); padding: 30px; width: 90%;
+            max-width: 500px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);
+        }
+        .modal-header h3 { margin: 0; font-size: 20px; }
+        .close-btn { font-size: 28px; font-weight: bold; cursor: pointer; color: var(--gray-color); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid var(--border-color);
+            border-radius: 6px; box-sizing: border-box;
+        }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+
+     
+        .search-bar { width: 100%; max-width: 350px; position: relative; }
+        .search-bar input {
+            width: 100%; padding: 8px 12px 8px 35px; box-sizing: border-box;
+            border: 1px solid var(--border-color); border-radius: 6px;
+        }
+        .search-bar .fa-search {
+            position: absolute; top: 50%; left: 12px;
+            transform: translateY(-50%); color: var(--gray-color);
+        }
+        
+        
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
+        .toast {
+            background-color: var(--dark-color); color: var(--light-color);
+            padding: 15px 20px; border-radius: 6px; box-shadow: var(--shadow);
+            margin-bottom: 10px; opacity: 0; transform: translateX(20px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .toast.show { opacity: 1; transform: translateX(0); }
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--danger-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>Quản Lý Đơn Vị</h1>
+            <button class="btn btn-add" onclick="openModal()">
+                <i class="fas fa-plus"></i> Thêm Mới
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Tìm kiếm theo tên hoặc mã đơn vị...">
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mã Đơn Vị</th>
+                        <th>Tên Đơn Vị</th>
+                        <th>Địa chỉ</th>
+                        <th>Cấp Quản Lý</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="dvql-table-body"></tbody>
+            </table>
+            <div id="loading-spinner" style="text-align:center; padding: 20px; display: none;">
+                <i class="fas fa-spinner fa-spin"></i> Đang tải...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form -->
+<div id="dvql-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title">Thêm Đơn Vị Mới</h3>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        <form id="dvql-form">
+            <input type="hidden" id="id_dv_hidden" />
+            <div class="form-group">
+                <label for="id_dv">Mã Đơn Vị</label>
+                <input type="text" id="id_dv" required />
+            </div>
+            <div class="form-group">
+                <label for="tenDV">Tên Đơn Vị</label>
+                <input type="text" id="tenDV" required />
+            </div>
+            <div class="form-group">
+                <label for="diaChi">Địa chỉ</label>
+                <input type="text" id="diaChi" required />
+            </div>
+            <div class="form-group">
+                <label for="capQuanLy">Cấp Quản Lý</label>
+                <select id="capQuanLy" required>
+                    <option value="Phường/Xã">Phường/Xã</option>
+                    <option value="Quận/Huyện">Quận/Huyện</option>
+                    <option value="Tỉnh/Thành phố">Tỉnh/Thành phố</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="closeModal()">Hủy</button>
+                <button type="submit" class="btn btn-add">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+    const BASE_URL = 'http://localhost:3000/api/donviql';
+
+    const api = {
+        get: async (id = '', query = '') => {
+            let url = BASE_URL;
+            if (id) url += `/${id}`;
+            const res = await fetch(url);
+            const result = await res.json();
+            if (id) return { data: result.data };
+            return { data: result.data.filter(d => d.tendv.toLowerCase().includes(query.toLowerCase()) || d.id_dvql.includes(query)) };
+        },
+        post: async (payload) => {
+            const res = await fetch(BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            return { ok: res.ok, message: result.message };
+        },
+        put: async (id, payload) => {
+            const res = await fetch(`${BASE_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            return { ok: res.ok, message: result.message };
+        },
+        delete: async (id) => {
+            const res = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+            const result = await res.json();
+            return { ok: res.ok, message: result.message };
+        }
+    };
+
+    const dvqlModal = document.getElementById('dvql-modal');
+    const dvqlForm = document.getElementById('dvql-form');
+    const modalTitle = document.getElementById('modal-title');
+    const loadingSpinner = document.getElementById('loading-spinner');
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerText = message;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('show'); }, 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    async function loadDVQL(query = '') {
+        loadingSpinner.style.display = 'block';
+        const tbody = document.getElementById('dvql-table-body');
+        tbody.innerHTML = '';
+        try {
+            const { data } = await api.get('', query);
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có dữ liệu.</td></tr>';
+                return;
+            }
+            data.forEach(dv => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${dv.id_dvql}</td>
+                    <td>${dv.tendv}</td>
+                    <td>${dv.diaChi}</td>
+                    <td>${dv.capQL}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editDVQL('${dv.id_dvql}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-delete" onclick="deleteDVQL('${dv.id_dvql}')"><i class="fas fa-trash"></i></button>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            showToast('Lỗi khi tải dữ liệu', 'error');
+        } finally {
+            loadingSpinner.style.display = 'none';
+        }
+    }
+
+    function openModal() {
+        modalTitle.innerText = 'Thêm Đơn Vị Mới';
+        dvqlForm.reset();
+        document.getElementById('id_dv_hidden').value = '';
+        document.getElementById('id_dv').disabled = false;
+        dvqlModal.classList.add('active');
+    }
+
+    function closeModal() {
+        dvqlModal.classList.remove('active');
+    }
+
+    dvqlForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const id_hidden = document.getElementById('id_dv_hidden').value;
+        const payload = {
+            id_dvql: document.getElementById('id_dv').value,
+            tendv: document.getElementById('tenDV').value,
+            diaChi: document.getElementById('diaChi').value,
+            capQL: document.getElementById('capQuanLy').value
+        };
+
+        let result;
+        if (id_hidden) {
+            result = await api.put(id_hidden, payload);
+        } else {
+            result = await api.post(payload);
+        }
+        
+        showToast(result.message, result.ok ? 'success' : 'error');
+        if (result.ok) {
+            closeModal();
+            loadDVQL();
+        }
+    });
+
+    async function editDVQL(id) {
+        const { data } = await api.get(id);
+        if (!data) return showToast('Không tìm thấy đơn vị', 'error');
+        
+        modalTitle.innerText = 'Chỉnh Sửa Đơn Vị';
+        document.getElementById('id_dv_hidden').value = data.id_dvql;
+        document.getElementById('id_dv').value = data.id_dvql;
+        document.getElementById('id_dv').disabled = true;
+        document.getElementById('tenDV').value = data.tendv;
+        document.getElementById('diaChi').value = data.diaChi;
+        document.getElementById('capQuanLy').value = data.capQL;
+        dvqlModal.classList.add('active');
+    }
+
+    async function deleteDVQL(id) {
+        if (!confirm(`Bạn có chắc muốn xóa đơn vị có mã '${id}'?`)) return;
+
+        const result = await api.delete(id);
+        showToast(result.message, result.ok ? 'success' : 'error');
+        if (result.ok) loadDVQL();
+    }
+
+    document.getElementById('search-input').addEventListener('input', (e) => loadDVQL(e.target.value));
+
+    window.onload = () => loadDVQL();
+</script>
+
+</body>
+</html>
